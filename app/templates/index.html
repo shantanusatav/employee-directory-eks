@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Employee Directory</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f4f6f9; margin: 0; color: #1f2933; }
+    header { background: #1e3a8a; color: #fff; padding: 20px 32px; }
+    header h1 { margin: 0; font-size: 26px; }
+    header p { margin: 4px 0 0; opacity: .8; font-size: 14px; }
+    main { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+    .card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    h2 { margin-top: 0; font-size: 18px; }
+    form.row { display: flex; gap: 8px; flex-wrap: wrap; }
+    input { padding: 8px 10px; border: 1px solid #cbd2d9; border-radius: 6px; flex: 1; min-width: 140px; }
+    button { padding: 8px 16px; border: 0; border-radius: 6px; background: #1e3a8a; color: #fff; cursor: pointer; }
+    button.del { background: #c53030; padding: 4px 10px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e4e7eb; }
+    .badge { display: inline-block; background: #e0e7ff; color: #1e3a8a; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+    footer { text-align: center; color: #7b8794; font-size: 13px; margin: 24px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Employee Directory</h1>
+    <p>Deployed on Amazon EKS with GitHub Actions + Argo CD</p>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Add Employee</h2>
+      <form class="row" method="post" action="/add">
+        <input name="name" placeholder="Full name" required>
+        <input name="department" placeholder="Department" required>
+        <input name="email" type="email" placeholder="Email" required>
+        <button type="submit">Add</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Employees</h2>
+      <form class="row" method="get" action="/">
+        <input name="q" value="{{ q }}" placeholder="Search by name or department">
+        <button type="submit">Search</button>
+      </form>
+      <table>
+        <tr><th>Name</th><th>Department</th><th>Email</th><th></th></tr>
+        {% for e in employees %}
+        <tr>
+          <td>{{ e.name }}</td>
+          <td><span class="badge">{{ e.department }}</span></td>
+          <td>{{ e.email }}</td>
+          <td>
+            <form method="post" action="/delete/{{ e.id }}">
+              <button class="del" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4">No employees found.</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+  </main>
+  <footer>Version: {{ version }}</footer>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# eksctl config - creates a small EKS cluster in Mumbai (ap-south-1)
+# Usage: eksctl create cluster -f scripts/cluster.yaml   (takes ~15-20 min)
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: employee-cluster
+  region: ap-south-1
+
+managedNodeGroups:
+  - name: workers
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 2
+    volumeSize: 20

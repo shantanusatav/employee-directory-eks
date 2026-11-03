@@ -1,0 +1,9 @@
+.git
+.github
+k8s
+argocd
+scripts
+tests
+__pycache__
+*.pyc
+*.md

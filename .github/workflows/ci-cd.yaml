@@ -1,0 +1,71 @@
+name: CI/CD - Build, Push to ECR, Update Manifest
+
+on:
+  push:
+    branches: [main]
+    # Don't re-run when only the manifests / docs change
+    paths-ignore:
+      - "k8s/**"
+      - "argocd/**"
+      - "**.md"
+  workflow_dispatch:
+
+# OIDC needs id-token: write; updating the manifest needs contents: write
+permissions:
+  id-token: write
+  contents: write
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REPOSITORY: employee-directory
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest -v tests/
+
+      - name: Configure AWS credentials (OIDC - no access keys)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag and push image
+        id: build
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+        run: |
+          TAG=$(echo "$GITHUB_SHA" | cut -c1-7)
+          IMAGE="$REGISTRY/$ECR_REPOSITORY:$TAG"
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Update Kubernetes manifest with new image
+        run: |
+          sed -i "s|image: .*employee-directory:.*|image: ${{ steps.build.outputs.image }}|" k8s/deployment.yaml
+          sed -i "/name: APP_VERSION/{n;s|value: .*|value: \"${{ steps.build.outputs.tag }}\"|}" k8s/deployment.yaml
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add k8s/deployment.yaml
+          git commit -m "Deploy image ${{ steps.build.outputs.tag }} [skip ci]" || echo "No changes"
+          git push
