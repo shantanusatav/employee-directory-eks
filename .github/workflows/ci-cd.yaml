@@ -38,10 +38,11 @@ jobs:
       - name: Run tests
         run: pytest -v tests/
 
-      - name: Configure AWS credentials (OIDC - no access keys)
+            - name: Configure AWS credentials (least-privilege IAM user)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Log in to Amazon ECR
