@@ -18,7 +18,7 @@ spec:
       containers:
         - name: employee-directory
           # GitHub Actions rewrites this line with each new image tag
-          image: AWS_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/employee-directory:v1
+          image: AWS_ACCOUNT_ID.dkr.ecr.ap-southeast-2.amazonaws.com/employee-directory:v1
           ports:
             - containerPort: 5000
           env:

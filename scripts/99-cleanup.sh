@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run AFTER your demo/viva to stop AWS charges. EKS costs money every hour it runs.
 set -e
-REGION="ap-south-1"
+REGION="ap-southeast-2"
 
 echo ">>> Deleting Argo CD app and Kubernetes resources (removes the LoadBalancer)"
 kubectl delete -f argocd/application.yaml --ignore-not-found

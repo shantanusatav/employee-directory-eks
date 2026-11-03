@@ -7,7 +7,7 @@ set -e
 
 GITHUB_USER="shantanusatav"
 GITHUB_REPO="employee-directory-eks"
-REGION="ap-south-1"
+REGION="ap-southeast-2"
 ECR_REPO="employee-directory"
 ROLE_NAME="github-actions-ecr-role"
 
