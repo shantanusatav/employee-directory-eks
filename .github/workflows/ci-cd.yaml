@@ -10,7 +10,6 @@ on:
       - "**.md"
   workflow_dispatch:
 
-# OIDC needs id-token: write; updating the manifest needs contents: write
 permissions:
   id-token: write
   contents: write
